@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Transition;
@@ -55,6 +56,8 @@ public class PlayActivity extends AppCompatActivity {
 
     private void init() {
         String url = "http://baobab.wdjcdn.com/14564977406580.mp4";
+
+        //String url = "http://7xse1z.com1.z0.glb.clouddn.com/1491813192";
         //需要路径的
         //videoPlayer.setUp(url, true, new File(FileUtils.getPath()), "");
 
@@ -82,6 +85,9 @@ public class PlayActivity extends AppCompatActivity {
         //增加title
         videoPlayer.getTitleTextView().setVisibility(View.VISIBLE);
         videoPlayer.getTitleTextView().setText("测试视频");
+        //videoPlayer.setShowPauseCover(false);
+
+        //videoPlayer.setSpeed(2f);
 
         //设置返回键
         videoPlayer.getBackButton().setVisibility(View.VISIBLE);
@@ -89,7 +95,7 @@ public class PlayActivity extends AppCompatActivity {
         //设置旋转
         orientationUtils = new OrientationUtils(this, videoPlayer);
 
-        //设置全屏按键功能
+        //设置全屏按键功能,这是使用的是选择屏幕，而不是全屏
         videoPlayer.getFullscreenButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,8 +158,13 @@ public class PlayActivity extends AppCompatActivity {
         if (isTransition && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             super.onBackPressed();
         } else {
-            finish();
-            overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                    overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
+                }
+            }, 500);
         }
     }
 
