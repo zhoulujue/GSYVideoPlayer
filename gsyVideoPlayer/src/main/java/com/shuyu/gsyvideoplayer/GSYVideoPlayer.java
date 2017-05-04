@@ -2,12 +2,14 @@ package com.shuyu.gsyvideoplayer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -79,6 +82,8 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
 
     protected String mPlayTag = ""; //播放的tag，防止错误，因为普通的url也可能重复
 
+    protected Matrix mTransformCover = null;
+
     protected int mPlayPosition = -22; //播放的tag，防止错误，因为普通的url也可能重复
 
     protected float mDownX;//触摸的X
@@ -124,6 +129,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
     protected boolean mBrightness = false;//是否改变亮度
 
     protected boolean mFirstTouch = false;//是否首次触摸
+
 
     /**
      * 当前UI
@@ -174,7 +180,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
         mCurrentTimeTextView = (TextView) findViewById(R.id.current);
         mTotalTimeTextView = (TextView) findViewById(R.id.total);
         mBottomContainer = (ViewGroup) findViewById(R.id.layout_bottom);
-        mTextureViewContainer = (RelativeLayout) findViewById(R.id.surface_container);
+        mTextureViewContainer = (ViewGroup) findViewById(R.id.surface_container);
         mTopContainer = (ViewGroup) findViewById(R.id.layout_top);
         if (isInEditMode())
             return;
@@ -264,6 +270,8 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
             if (!mCacheFile && GSYVideoManager.instance() != null) {
                 proxy.registerCacheListener(GSYVideoManager.instance(), mOriginUrl);
             }
+        } else if (!cacheWithPlay && (!url.startsWith("http") && !url.startsWith("rtmp") && !url.startsWith("rtsp"))) {
+            mCacheFile = true;
         }
         this.mUrl = url;
         this.mObjects = objects;
@@ -478,9 +486,15 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
         mTextureView.setSurfaceTextureListener(this);
         mTextureView.setRotation(mRotate);
 
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-        mTextureViewContainer.addView(mTextureView, layoutParams);
+        if(mTextureViewContainer instanceof RelativeLayout) {
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+            mTextureViewContainer.addView(mTextureView, layoutParams);
+        } else if(mTextureViewContainer instanceof FrameLayout) {
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.gravity = Gravity.CENTER;
+            mTextureViewContainer.addView(mTextureView, layoutParams);
+        }
     }
 
     /**
@@ -488,10 +502,14 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
      **/
     @Override
     protected void setSmallVideoTextureView(View.OnTouchListener onTouchListener) {
-        mTextureView.setOnTouchListener(onTouchListener);
+        mTextureViewContainer.setOnTouchListener(onTouchListener);
         mProgressBar.setOnTouchListener(null);
         mFullscreenButton.setOnTouchListener(null);
-        mTextureView.setOnClickListener(null);
+        mFullscreenButton.setVisibility(INVISIBLE);
+        mProgressBar.setVisibility(INVISIBLE);
+        mCurrentTimeTextView.setVisibility(INVISIBLE);
+        mTotalTimeTextView.setVisibility(INVISIBLE);
+        mTextureViewContainer.setOnClickListener(null);
         mSmallClose.setVisibility(VISIBLE);
         mSmallClose.setOnClickListener(new OnClickListener() {
             @Override
@@ -634,7 +652,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
                     dismissProgressDialog();
                     dismissVolumeDialog();
                     dismissBrightnessDialog();
-                    if (mChangePosition) {
+                    if (mChangePosition && GSYVideoManager.instance().getMediaPlayer() != null) {
                         GSYVideoManager.instance().getMediaPlayer().seekTo(mSeekTimePosition);
                         int duration = getDuration();
                         int progress = mSeekTimePosition * 100 / (duration == 0 ? 1 : duration);
@@ -693,9 +711,13 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
     protected void showPauseCover() {
         try {
             if (mCurrentState == CURRENT_STATE_PAUSE && mFullPauseBitmap != null
-                    && !mFullPauseBitmap.isRecycled()) {
-                mCoverImageView.setRotation(mRotate);
+                    && !mFullPauseBitmap.isRecycled() && mShowPauseCover) {
+                mCoverImageView.setRotation(mTextureView.getRotation());
                 mCoverImageView.setImageBitmap(mFullPauseBitmap);
+                if(mTransformCover != null) {
+                    mCoverImageView.setScaleType(ImageView.ScaleType.MATRIX);
+                    mCoverImageView.setImageMatrix(mTransformCover);
+                }
                 mCoverImageView.setVisibility(VISIBLE);
             }
         } catch (Exception e) {
@@ -709,7 +731,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
     protected void releasePauseCover() {
         try {
             if (mCurrentState != CURRENT_STATE_PAUSE && mFullPauseBitmap != null
-                    && !mFullPauseBitmap.isRecycled()) {
+                    && !mFullPauseBitmap.isRecycled() && mShowPauseCover) {
                 mCoverImageView.setImageResource(R.drawable.empty_drawable);
                 mCoverImageView.setVisibility(GONE);
                 //如果在这里销毁，可能会draw a recycler bitmap error
@@ -726,7 +748,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
     protected void releasePauseCoverAndBitmap() {
         try {
             if (mCurrentState != CURRENT_STATE_PAUSE && mFullPauseBitmap != null
-                    && !mFullPauseBitmap.isRecycled()) {
+                    && !mFullPauseBitmap.isRecycled() && mShowPauseCover) {
                 mCoverImageView.setImageResource(R.drawable.empty_drawable);
                 mCoverImageView.setVisibility(GONE);
                 mFullPauseBitmap.recycle();
@@ -792,8 +814,12 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
             }
         }
         if (GSYVideoManager.instance().getMediaPlayer() != null && mHadPlay) {
-            int time = seekBar.getProgress() * getDuration() / 100;
-            GSYVideoManager.instance().getMediaPlayer().seekTo(time);
+            try {
+                int time = seekBar.getProgress() * getDuration() / 100;
+                GSYVideoManager.instance().getMediaPlayer().seekTo(time);
+            } catch (Exception e) {
+                Debuger.printfWarning(e.toString());
+            }
         }
     }
 
@@ -910,21 +936,16 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
     public void onInfo(int what, int extra) {
         if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
             mBackUpPlayingBufferState = mCurrentState;
-            if (mLooping && mHadPlay) {
-                //循环在播放的不显示loading
-            } else {
-                //避免在onPrepared之前就进入了buffering，导致一只loading
-                if (mHadPlay && mCurrentState != CURRENT_STATE_PREPAREING && mCurrentState > 0)
-                    setStateAndUi(CURRENT_STATE_PLAYING_BUFFERING_START);
-            }
+            //避免在onPrepared之前就进入了buffering，导致一只loading
+            if (mHadPlay && mCurrentState != CURRENT_STATE_PREPAREING && mCurrentState > 0)
+                setStateAndUi(CURRENT_STATE_PLAYING_BUFFERING_START);
+
         } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
             if (mBackUpPlayingBufferState != -1) {
-                if (mLooping && mHadPlay) {
-                    //循环在播放的不显示
-                } else {
-                    if (mHadPlay && mCurrentState != CURRENT_STATE_PREPAREING && mCurrentState > 0)
-                        setStateAndUi(mBackUpPlayingBufferState);
-                }
+
+                if (mHadPlay && mCurrentState != CURRENT_STATE_PREPAREING && mCurrentState > 0)
+                    setStateAndUi(mBackUpPlayingBufferState);
+
                 mBackUpPlayingBufferState = -1;
             }
         } else if (what == IMediaPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED) {
@@ -1212,6 +1233,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
      *
      * @return 返回是否全屏
      */
+    @SuppressWarnings("ResourceType")
     public static boolean backFromWindowFull(Context context) {
         boolean backFrom = false;
         ViewGroup vp = (ViewGroup) (CommonUtil.scanForActivity(context)).findViewById(Window.ID_ANDROID_CONTENT);
@@ -1258,6 +1280,7 @@ public abstract class GSYVideoPlayer extends GSYBaseVideoPlayer implements View.
     /**
      * 从哪里开始播放
      * 目前有时候前几秒有跳动问题，毫秒
+     * 需要在startPlayLogic之前，即播放开始之前
      */
     public void setSeekOnStart(long seekOnStart) {
         this.mSeekOnStart = seekOnStart;

@@ -16,13 +16,16 @@
 * **锁定/解锁全屏点击功能。**
 * **支持快播和慢播。**
 * **调整显示比例:默认、16:9、4:3。**
+* **暂停时前后台切换不黑屏**
 * **调整不同清晰度的支持。**
 * **支持IJKPlayer和EXOPlayer切换。**
 * **进度条小窗口预览（测试）。**
 * **Https支持。**
+* **支持播放时旋转画面角度（0,90,180,270）。**
 * **连续播放一个列表的视频。**
 * **支持全屏与非全屏两套布局切换**
 * **弹幕支持**
+* **镜像旋转**
 
 [![](https://jitpack.io/v/CarGuo/GSYVideoPlayer.svg)](https://jitpack.io/#CarGuo/GSYVideoPlayer)
 [ ![Download](https://api.bintray.com/packages/carguo/GSYVideoPlayer/gsyVideoPlayer/images/download.svg) ](https://bintray.com/carguo/GSYVideoPlayer/gsyVideoPlayer/_latestVersion)
@@ -34,7 +37,7 @@
 
 #### 直接在module下的build.gradle添加
 ```
-compile 'com.shuyu:GSYVideoPlayer:1.6.2'
+compile 'com.shuyu:GSYVideoPlayer:1.6.4'
 
 ```
 
@@ -55,7 +58,7 @@ allprojects {
 
 ```
 dependencies {
-        compile 'com.github.CarGuo:GSYVideoPlayer:v1.6.2'
+        compile 'com.github.CarGuo:GSYVideoPlayer:v1.6.4'
 }
 ```
 
@@ -99,29 +102,32 @@ dependencies {
 * ### 4、进度条小窗口预览
 <img src="https://github.com/CarGuo/GSYVideoPlayer/blob/master/07.gif" width="426px" height="240px"/>
 
+
 ## 近期版本
 
-### 1.6.2(2017-04-05)
-* 移除无用代码
-* 修复了动态播放按键的显示小白点问题
-* 增加了 NormalGSYVideoPlayer（使用正常图片做播放按键、系统loading的播放器）
-* 增加了动态加载so的方法
-* 增加了setIsTouchWigetFull方法，全屏的时候也可以禁止滑动产生的快进，声音，亮度调节逻辑
+### 1.6.5(未发布)
+* 增加镜像旋转demo SampleVideo
+* 修改了循环播放的UI问题
+* 修改了本地文件或者已缓存文件，显示进度问题 
+* 修复了横竖屏的问题
+* GSYVideoType增加SCREEN_TYPE_FULL类型，通过按照比例裁减放大视频，达到全屏
+* 增加setShowPauseCover接口
+
 ```
 /**
- * 设置自定义so包加载类
- * 需要在instance之前设置
+ * 是否需要加载显示暂停的cover图片
+ * 打开状态下，暂停退到后台，再回到前台不会显示黑屏，但可以对某些机型有概率出现OOM
+ * 关闭情况下，暂停退到后台，再回到前台显示黑屏
+ *
+ * @param showPauseCover 默认true
  */
-public static void setIjkLibLoader(IjkLibLoader libLoader)
-```
-```
-/**
- * 是否可以全屏滑动界面改变进度，声音等
- * 默认 true
- */
-public void setIsTouchWigetFull(boolean isTouchWigetFull)
+public void setShowPauseCover(boolean showPauseCover)
 ```
 
+### 1.6.4(2017-04-20)
+* update ijk to 0.7.9 (增加了soundTouch，调速后声音变调问题得到解决)
+* 修复了可能出现的判空问题，修复了ListGSYVideoPlayer的同步问题 
+* 修复了可移动小窗口播放结束无法移动的问题
 
 ### 更多版本请查阅：[版本更新说明](https://github.com/CarGuo/GSYVideoPlayer/blob/master/UPDATE_VERSION.md)
 

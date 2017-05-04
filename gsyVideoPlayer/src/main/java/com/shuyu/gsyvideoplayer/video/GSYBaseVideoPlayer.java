@@ -95,6 +95,12 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
 
     protected boolean mCacheFile = false; //是否是缓存的文件
 
+    protected boolean mIsTouchWiget = true; //是否支持非全屏滑动触摸有效
+
+    protected boolean mIsTouchWigetFull = true; //是否支持全屏滑动触摸有效
+
+    protected boolean mShowPauseCover = true;//是否显示暂停图片
+
     protected Context mContext;
 
     protected String mOriginUrl; //原来的url
@@ -132,10 +138,6 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     protected Bitmap mFullPauseBitmap = null;//暂停时的全屏图片；
 
     protected OrientationUtils mOrientationUtils; //旋转工具类
-
-    protected boolean mIsTouchWiget = true; //是否支持非全屏滑动触摸有效
-
-    protected boolean mIsTouchWigetFull = true; //是否支持全屏滑动触摸有效
 
     private Handler mHandler = new Handler();
 
@@ -273,6 +275,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
      * @param actionBar 是否有actionBar，有的话需要隐藏
      * @param statusBar 是否有状态bar，有的话需要隐藏
      */
+    @SuppressWarnings("ResourceType")
     public GSYBaseVideoPlayer startWindowFullscreen(final Context context, final boolean actionBar, final boolean statusBar) {
 
         mSystemUiVisibility = ((Activity) context).getWindow().getDecorView().getSystemUiVisibility();
@@ -361,6 +364,8 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
             gsyVideoPlayer.mNeedShowWifiTip = mNeedShowWifiTip;
             gsyVideoPlayer.mShrinkImageRes = mShrinkImageRes;
             gsyVideoPlayer.mEnlargeImageRes = mEnlargeImageRes;
+            gsyVideoPlayer.mRotate = mRotate;
+            gsyVideoPlayer.mShowPauseCover = mShowPauseCover;
             gsyVideoPlayer.setUp(mOriginUrl, mCache, mCachePath, mMapHeadData, mObjects);
             gsyVideoPlayer.setStateAndUi(mCurrentState);
             gsyVideoPlayer.addTextureView();
@@ -417,6 +422,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     /**
      * 回到正常效果
      */
+    @SuppressWarnings("ResourceType")
     private void backToNormal() {
 
         final ViewGroup vp = getViewGroup();
@@ -458,7 +464,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
      */
     private void pauseFullCoverLogic() {
         if (mCurrentState == GSYVideoPlayer.CURRENT_STATE_PAUSE && mTextureView != null
-                && (mFullPauseBitmap == null || mFullPauseBitmap.isRecycled())) {
+                && (mFullPauseBitmap == null || mFullPauseBitmap.isRecycled()) && mShowPauseCover) {
             try {
                 mFullPauseBitmap = mTextureView.getBitmap(mTextureView.getSizeW(), mTextureView.getSizeH());
             } catch (Exception e) {
@@ -474,12 +480,12 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     private void pauseFullBackCoverLogic(GSYBaseVideoPlayer gsyVideoPlayer) {
         //如果是暂停状态
         if (gsyVideoPlayer.mCurrentState == GSYVideoPlayer.CURRENT_STATE_PAUSE
-                && gsyVideoPlayer.mTextureView != null) {
+                && gsyVideoPlayer.mTextureView != null && mShowPauseCover) {
             //全屏的位图还在，说明没播放，直接用原来的
             if (gsyVideoPlayer.mFullPauseBitmap != null
-                    && !gsyVideoPlayer.mFullPauseBitmap.isRecycled()) {
+                    && !gsyVideoPlayer.mFullPauseBitmap.isRecycled() && mShowPauseCover) {
                 mFullPauseBitmap = gsyVideoPlayer.mFullPauseBitmap;
-            } else {
+            } else if (mShowPauseCover) {
                 //不在了说明已经播放过，还是暂停的话，我们拿回来就好
                 try {
                     mFullPauseBitmap = mTextureView.getBitmap(mTextureView.getSizeW(), mTextureView.getSizeH());
@@ -495,6 +501,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     /**
      * 显示小窗口
      */
+    @SuppressWarnings("ResourceType")
     public GSYBaseVideoPlayer showSmallVideo(Point size, final boolean actionBar, final boolean statusBar) {
 
         final ViewGroup vp = getViewGroup();
@@ -558,6 +565,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     /**
      * 隐藏小窗口
      */
+    @SuppressWarnings("ResourceType")
     public void hideSmallVideo() {
         final ViewGroup vp = getViewGroup();
         GSYVideoPlayer gsyVideoPlayer = (GSYVideoPlayer) vp.findViewById(SMALL_ID);
@@ -800,4 +808,18 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     }
 
 
+    public boolean isShowPauseCover() {
+        return mShowPauseCover;
+    }
+
+    /**
+     * 是否需要加载显示暂停的cover图片
+     * 打开状态下，暂停退到后台，再回到前台不会显示黑屏，但可以对某些机型有概率出现OOM
+     * 关闭情况下，暂停退到后台，再回到前台显示黑屏
+     *
+     * @param showPauseCover 默认true
+     */
+    public void setShowPauseCover(boolean showPauseCover) {
+        this.mShowPauseCover = showPauseCover;
+    }
 }
