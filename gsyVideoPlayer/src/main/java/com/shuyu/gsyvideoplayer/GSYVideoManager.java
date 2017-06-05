@@ -112,7 +112,7 @@ public class GSYVideoManager implements IMediaPlayer.OnPreparedListener, IMediaP
     }
 
     public static IjkLibLoader getIjkLibLoader() {
-       return ijkLibLoader;
+        return ijkLibLoader;
     }
 
     /**
@@ -230,7 +230,7 @@ public class GSYVideoManager implements IMediaPlayer.OnPreparedListener, IMediaP
     }
 
     //public GSYVideoManager() {
-        //this(null);
+    //this(null);
     //}
 
     /***
@@ -318,6 +318,10 @@ public class GSYVideoManager implements IMediaPlayer.OnPreparedListener, IMediaP
             if (((GSYModel) msg.obj).getSpeed() != 1 && ((GSYModel) msg.obj).getSpeed() > 0) {
                 ((IjkMediaPlayer) mediaPlayer).setSpeed(((GSYModel) msg.obj).getSpeed());
             }
+
+            ((IjkMediaPlayer) mediaPlayer).setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "ffconcat,file,http,https,tcp,udp,tls,rtp");
+            ((IjkMediaPlayer) mediaPlayer).setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "safe", 0);
+
             initIJKOption((IjkMediaPlayer) mediaPlayer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -651,17 +655,17 @@ public class GSYVideoManager implements IMediaPlayer.OnPreparedListener, IMediaP
 
     /**
      * 是否需要在buffer缓冲时，增加外部超时判断
-     *
+     * <p>
      * 超时后会走onError接口，播放器通过onPlayError回调出
-     *
+     * <p>
      * 错误码为 ： BUFFER_TIME_OUT_ERROR = -192
-     *
+     * <p>
      * 由于onError之后执行GSYVideoPlayer的OnError，如果不想触发错误，
      * 可以重载onError，在super之前拦截处理。
-     *
+     * <p>
      * public void onError(int what, int extra){
-     *      do you want before super and return;
-     *      super.onError(what, extra)
+     * do you want before super and return;
+     * super.onError(what, extra)
      * }
      *
      * @param timeOut          超时时间，毫秒 默认8000
