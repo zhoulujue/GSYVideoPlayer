@@ -10,34 +10,32 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.example.gsyvideoplayer.listener.SampleListener;
-import com.example.gsyvideoplayer.video.LandLayoutVideo;
-import com.shuyu.gsyvideoplayer.GSYPreViewManager;
-import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.example.gsyvideoplayer.model.SwitchVideoModel;
+import com.example.gsyvideoplayer.video.SampleVideo;
 import com.shuyu.gsyvideoplayer.GSYVideoPlayer;
-
 import com.shuyu.gsyvideoplayer.listener.LockClickListener;
-import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
+/**
+ * Created by guoshuyu on 2017/6/18.
+ * ampleVideo支持全屏与非全屏切换的清晰度，旋转，镜像等功能.
+ */
 
-public class DetailPlayer extends AppCompatActivity {
-
+public class DetailMoreTypeActivity extends AppCompatActivity{
     @BindView(R.id.post_detail_nested_scroll)
     NestedScrollView postDetailNestedScroll;
 
     //推荐使用StandardGSYVideoPlayer，功能一致
     //CustomGSYVideoPlayer部分功能处于试验阶段
     @BindView(R.id.detail_player)
-    LandLayoutVideo detailPlayer;
+    SampleVideo detailPlayer;
 
     @BindView(R.id.activity_detail_player)
     RelativeLayout activityDetailPlayer;
@@ -50,27 +48,23 @@ public class DetailPlayer extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_player);
+        setContentView(R.layout.activity_detail_more_type);
         ButterKnife.bind(this);
 
-        String url = "http://baobab.wdjcdn.com/14564977406580.mp4";
-        //String url = "http://7xse1z.com1.z0.glb.clouddn.com/1491813192";
-        //String url = "http://ocgk7i2aj.bkt.clouddn.com/17651ac2-693c-47e9-b2d2-b731571bad37";
-        //String url = "http://111.198.24.133:83/yyy_login_server/pic/YB059284/97778276040859/1.mp4";
-        //String url = "http://vr.tudou.com/v2proxy/v?sid=95001&id=496378919&st=3&pw=";
-        //String url = "http://pl-ali.youku.com/playlist/m3u8?type=mp4&ts=1490185963&keyframe=0&vid=XMjYxOTQ1Mzg2MA==&ep=ciadGkiFU8cF4SvajD8bYyuwJiYHXJZ3rHbN%2FrYDAcZuH%2BrC6DPcqJ21TPs%3D&sid=04901859548541247bba8&token=0524&ctype=12&ev=1&oip=976319194";
-        //String url = "http://hls.ciguang.tv/hdtv/video.m3u8";
-        //String url = "https://res.exexm.com/cw_145225549855002";
-        detailPlayer.setUp(url, false, null, "测试视频");
-        //detailPlayer.setLooping(true);
-        //detailPlayer.setShowPauseCover(false);
-        /*VideoOptionModel videoOptionModel =
-                new VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 5);
-        List<VideoOptionModel> list = new ArrayList<>();
-        list.add(videoOptionModel);
-        GSYVideoManager.instance().setOptionModelList(list);*/
+        String source1 = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4";
+        //String source1 = "http://baobab.wdjcdn.com/14564977406580.mp4";
+        String name = "普通";
+        SwitchVideoModel switchVideoModel = new SwitchVideoModel(name, source1);
 
-        //GSYVideoManager.instance().setTimeOut(4000, true);
+        String source2 = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f30.mp4";
+        String name2 = "清晰";
+        SwitchVideoModel switchVideoModel2 = new SwitchVideoModel(name2, source2);
+
+        List<SwitchVideoModel> list = new ArrayList<>();
+        list.add(switchVideoModel);
+        list.add(switchVideoModel2);
+
+        detailPlayer.setUp(list, true, "");
 
         //增加封面
         ImageView imageView = new ImageView(this);
@@ -101,7 +95,7 @@ public class DetailPlayer extends AppCompatActivity {
                 orientationUtils.resolveByClick();
 
                 //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
-                detailPlayer.startWindowFullscreen(DetailPlayer.this, true, true);
+                detailPlayer.startWindowFullscreen(DetailMoreTypeActivity.this, true, true);
             }
         });
 
@@ -187,7 +181,7 @@ public class DetailPlayer extends AppCompatActivity {
         if (isPlay && !isPause) {
             if (newConfig.orientation == ActivityInfo.SCREEN_ORIENTATION_USER) {
                 if (!detailPlayer.isIfCurrentIsFullscreen()) {
-                    detailPlayer.startWindowFullscreen(DetailPlayer.this, true, true);
+                    detailPlayer.startWindowFullscreen(DetailMoreTypeActivity.this, true, true);
                 }
             } else {
                 //新版本isIfCurrentIsFullscreen的标志位内部提前设置了，所以不会和手动点击冲突
@@ -208,5 +202,4 @@ public class DetailPlayer extends AppCompatActivity {
         detailPlayer.getTitleTextView().setText("测试视频");
         detailPlayer.getBackButton().setVisibility(View.GONE);
     }
-
 }

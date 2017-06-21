@@ -37,7 +37,7 @@
 
 #### 直接在module下的build.gradle添加
 ```
-compile 'com.shuyu:GSYVideoPlayer:1.6.5'
+compile 'com.shuyu:GSYVideoPlayer:1.6.7'
 
 ```
 
@@ -58,7 +58,7 @@ allprojects {
 
 ```
 dependencies {
-        compile 'com.github.CarGuo:GSYVideoPlayer:v1.6.5'
+        compile 'com.github.CarGuo:GSYVideoPlayer:v1.6.7'
 }
 ```
 
@@ -66,9 +66,9 @@ dependencies {
 
 * ### 下方文档以及问题集锦，你想要知道的大部分都在里面。
 
-* ### ！！有问题请先下面问题集锦中查阅（如依赖不成功，播放不成功等等）！！
+* ### <a href="https://github.com/CarGuo/GSYVideoPlayer/blob/master/QUESTION.md">有问题请先下面问题集锦中查阅（如依赖不成功，播放不成功等等）。</a>
 
-* ### QQ群，有兴趣的可以进来，无底线欢迎：174815284 。
+* ### QQ群，有兴趣的可以进来（群里平时可能比较吵）：174815284 。
 
 --------------------------------------------------------------------------------
 
@@ -91,9 +91,12 @@ dependencies {
 <img src="https://github.com/CarGuo/GSYVideoPlayer/blob/master/01.gif" width="240px" height="426px"/>
 
 * ### 2、列表/详情模式
+
+<div>
 <img src="https://github.com/CarGuo/GSYVideoPlayer/blob/master/02.gif" width="240px" height="426px"/>
 <img src="https://github.com/CarGuo/GSYVideoPlayer/blob/master/05.gif" width="240px" height="426px"/>
 <img src="https://github.com/CarGuo/GSYVideoPlayer/blob/master/04.gif" width="240px" height="426px"/>
+</div>
 
 * ### 3、弹幕
 <img src="https://github.com/CarGuo/GSYVideoPlayer/blob/master/09.gif" width="360px" height="240px"/>
@@ -105,29 +108,32 @@ dependencies {
 
 ## 近期版本
 
-### 1.6.5(2017-05-05)
-* 增加镜像旋转demo SampleVideo
-* 修改了循环播放的UI问题
-* 修改了本地文件或者已缓存文件，显示进度问题 
-* 修复了横竖屏的问题
-* GSYVideoType增加SCREEN_TYPE_FULL类型，通过按照比例裁减放大视频，达到全屏
-* 增加setShowPauseCover接口
-
+### 1.6.7(2017-06-16)
+* fix bug #265，全屏按返回按键之后的虚拟按键显示问题
+* so编译配置增加protocol crypto
+* 增加设置触摸显示控制ui的消失时间接口 
+```
+StandardGSYVideoPlayer.java
+/**
+ * 设置触摸显示控制ui的消失时间
+ * @param dismissControlTime 毫秒，默认2500
+ */
+public void setDismissControlTime(int dismissControlTime)
+```
+* 调整触摸滑动快进的比例
 ```
 /**
- * 是否需要加载显示暂停的cover图片
- * 打开状态下，暂停退到后台，再回到前台不会显示黑屏，但可以对某些机型有概率出现OOM
- * 关闭情况下，暂停退到后台，再回到前台显示黑屏
- *
- * @param showPauseCover 默认true
+ * 调整触摸滑动快进的比例
+ * @param seekRatio 滑动快进的比例，默认1。数值越大，滑动的产生的seek越小
  */
-public void setShowPauseCover(boolean showPauseCover)
+public void setSeekRatio(float seekRatio) 
 ```
-
-### 1.6.4(2017-04-20)
-* update ijk to 0.7.9 (增加了soundTouch，调速后声音变调问题得到解决)
-* 修复了可能出现的判空问题，修复了ListGSYVideoPlayer的同步问题 
-* 修复了可移动小窗口播放结束无法移动的问题
+* 增加了拉伸填充的配置
+```
+GSYVideoType.java
+//全屏拉伸显示，使用这个属性时，surface_container建议使用FrameLayout
+public final static int SCREEN_MATCH_FULL = -4;
+```
 
 ### 更多版本请查阅：[版本更新说明](https://github.com/CarGuo/GSYVideoPlayer/blob/master/UPDATE_VERSION.md)
 
@@ -139,6 +145,11 @@ public void setShowPauseCover(boolean showPauseCover)
 -keep class com.shuyu.gsyvideoplayer.** { *; }
 -dontwarn com.shuyu.gsyvideoplayer.**
 ```
+
+## 依赖大小参考
+建议使用ndk过滤，详细参考 [参考第四条 ： 4、NDK的so支持](http://www.jianshu.com/p/86e4b336c17d)
+![](https://ooo.0o0.ooo/2017/06/15/5941f343a39f5.png)
+
 
 ## License
 

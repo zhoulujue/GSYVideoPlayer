@@ -79,7 +79,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
 
     protected int mEnlargeImageRes = -1; //全屏显示的案件图片
 
-    private int mSystemUiVisibility;
+    protected float mSeekRatio = 1; //触摸滑动进度的比例系数
 
     protected float mSpeed = 1;//播放速度，只支持6.0以上
 
@@ -140,6 +140,8 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     protected OrientationUtils mOrientationUtils; //旋转工具类
 
     private Handler mHandler = new Handler();
+
+    private int mSystemUiVisibility;
 
     /**
      * 1.5.0开始加入，如果需要不同布局区分功能，需要重载
@@ -366,6 +368,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
             gsyVideoPlayer.mEnlargeImageRes = mEnlargeImageRes;
             gsyVideoPlayer.mRotate = mRotate;
             gsyVideoPlayer.mShowPauseCover = mShowPauseCover;
+            gsyVideoPlayer.mSeekRatio = mSeekRatio;
             gsyVideoPlayer.setUp(mOriginUrl, mCache, mCachePath, mMapHeadData, mObjects);
             gsyVideoPlayer.setStateAndUi(mCurrentState);
             gsyVideoPlayer.addTextureView();
@@ -399,6 +402,7 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     /**
      * 退出window层播放全屏效果
      */
+    @SuppressWarnings("ResourceType")
     public void clearFullscreenLayout() {
         mIfCurrentIsFullscreen = false;
         int delay = 0;
@@ -410,6 +414,16 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
                 mOrientationUtils = null;
             }
         }
+
+
+        final ViewGroup vp = getViewGroup();
+        final View oldF = vp.findViewById(FULLSCREEN_ID);
+        if (oldF != null) {
+            //此处fix bug#265，推出全屏的时候，虚拟按键问题
+            GSYVideoPlayer gsyVideoPlayer = (GSYVideoPlayer) oldF;
+            gsyVideoPlayer.mIfCurrentIsFullscreen = false;
+        }
+
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -822,4 +836,20 @@ public abstract class GSYBaseVideoPlayer extends FrameLayout implements GSYMedia
     public void setShowPauseCover(boolean showPauseCover) {
         this.mShowPauseCover = showPauseCover;
     }
+
+    /**
+     * 调整触摸滑动快进的比例
+     * @param seekRatio 滑动快进的比例，默认1。数值越大，滑动的产生的seek越小
+     */
+    public void setSeekRatio(float seekRatio) {
+        if(seekRatio < 0) {
+            return;
+        }
+        this.mSeekRatio = seekRatio;
+    }
+
+    public float getSeekRatio() {
+        return mSeekRatio;
+    }
+
 }

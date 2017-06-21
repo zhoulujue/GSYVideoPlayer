@@ -1,5 +1,35 @@
 ## 下方个版本说明，可以当做简单的wiki使用~，效果可参考DEMO。
 
+### 1.6.7(2017-06-16)
+* fix bug #265，全屏按返回按键之后的虚拟按键显示问题
+* so编译配置增加protocol crypto
+* 增加设置触摸显示控制ui的消失时间接口 
+```
+StandardGSYVideoPlayer.java
+/**
+ * 设置触摸显示控制ui的消失时间
+ * @param dismissControlTime 毫秒，默认2500
+ */
+public void setDismissControlTime(int dismissControlTime)
+```
+* 调整触摸滑动快进的比例
+```
+/**
+ * 调整触摸滑动快进的比例
+ * @param seekRatio 滑动快进的比例，默认1。数值越大，滑动的产生的seek越小
+ */
+public void setSeekRatio(float seekRatio) 
+```
+* 增加了拉伸填充的配置
+```
+GSYVideoType.java
+//全屏拉伸显示，使用这个属性时，surface_container建议使用FrameLayout
+public final static int SCREEN_MATCH_FULL = -4;
+```
+
+### 1.6.6(2017-05-24)
+* update ijkplayer to 0.8.0
+* update videocache to 2.7.0
 
 ### 1.6.5(2017-05-05)
 * 增加镜像旋转demo SampleVideo
