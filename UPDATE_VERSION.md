@@ -1,5 +1,47 @@
 ## 下方个版本说明，可以当做简单的wiki使用~，效果可参考DEMO。
 
+### 2.0.2(2017-07-16)
+* 完美实现播放、暂停、前后台切换、画面调整等情况不黑屏不突变，删除coverImageView类。
+* 增加了6.0下变调不变速接口
+* update ijkPlayer to 0.8.1
+
+### 2.0.1(2017-07-11)
+* 优化了TextureView显示
+* 修复SampleView的暂停问题
+
+
+### 2.0.0(2017-07-10)
+* 项目结构调整，增加了新的so支持。
+
+### 1.6.9(2017-07-08)
+
+* 修改setup的设置参数。
+* 升级修改所有回调接口，回调接口中返回当前播放器。
+* 修正播放本地文件错误，会错删文件问题。
+* 兼容Appbar中使用，感谢[@loveRose](https://github.com/loveRose)
+* 非全屏播放器可获取全屏播放器对象。
+```
+/**
+ * 获取全屏播放器对象
+ *
+ * @return GSYVideoPlayer 如果没有则返回空。
+ */
+public GSYVideoPlayer getFullWindowPlayer()
+```
+
+### 1.6.8(2017-06-27)
+* fix listVideoUtils title错乱问题
+* fix setSpeed无法重置的问题 
+* fix 切换网络无法继续播放问题
+* 增加旋转使能后是否跟随系统设置
+```
+/**
+ * 是否跟随系统旋转，false的话，系统禁止旋转也会跟着旋转
+ * @param rotateWithSystem 默认true
+ */
+public void setRotateWithSystem(boolean rotateWithSystem)
+```
+
 ### 1.6.7(2017-06-16)
 * fix bug #265，全屏按返回按键之后的虚拟按键显示问题
 * so编译配置增加protocol crypto

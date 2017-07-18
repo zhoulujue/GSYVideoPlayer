@@ -30,13 +30,27 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    def viewDependencies = rootProject.ext.viewDependencies
-    def dataDependencies = rootProject.ext.dataDependencies
-    compile viewDependencies.ijkplayer_java
-    compile viewDependencies.ijkplayer_exo
-    compile viewDependencies.transitionseverywhere
-    compile dataDependencies.videocache
-    compile androidDependencies.appcompat_v7
+
+    //compile project(':gsyVideoPlayer-java')
+    //compile project(':gsyVideoPlayer-armv5')
+    //compile project(':gsyVideoPlayer-armv7a')
+    //compile project(':gsyVideoPlayer-armv64')
+    //compile project(':gsyVideoPlayer-x86')
+    //compile project(':gsyVideoPlayer-x86_64')
+
+    //更多配置版so，增加了concat,rtsp,mpeg，crypto
+    //compile project(':gsyVideoPlayer-ex_so')
+
+    compile 'com.shuyu:gsyVideoPlayer-java:2.0.2'
+
+    compile 'com.shuyu:gsyVideoPlayer-armv5:2.0.2'
+    compile 'com.shuyu:gsyVideoPlayer-armv7a:2.0.2'
+    compile 'com.shuyu:gsyVideoPlayer-arm64:2.0.2'
+    compile 'com.shuyu:gsyVideoPlayer-x64:2.0.2'
+    compile 'com.shuyu:gsyVideoPlayer-x86:2.0.2'
+
+    //更多配置版so，增加了concat,rtsp,mpeg，crypto
+    //compile 'com.shuyu:gsyVideoPlayer-ex_so:2.0.2'
 }
 
-//apply from: '../bintray.gradle'
+apply from: './bintray.gradle'

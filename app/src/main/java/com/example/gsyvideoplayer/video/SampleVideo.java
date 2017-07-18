@@ -82,7 +82,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
         mMoreScale.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mHadPlay) {
+                if (!mHadPlay) {
                     return;
                 }
                 if (mType == 0) {
@@ -93,7 +93,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
                     mType = 3;
                 } else if (mType == 3) {
                     mType = 4;
-                } else if(mType == 4) {
+                } else if (mType == 4) {
                     mType = 0;
                 }
                 resolveTypeUI();
@@ -112,19 +112,15 @@ public class SampleVideo extends StandardGSYVideoPlayer {
         mChangeRotate.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mHadPlay) {
+                if (!mHadPlay) {
                     return;
                 }
                 if ((mTextureView.getRotation() - mRotate) == 270) {
                     mTextureView.setRotation(mRotate);
                     mTextureView.requestLayout();
-                    mCoverImageView.setRotation(mRotate);
-                    mCoverImageView.requestLayout();
                 } else {
                     mTextureView.setRotation(mTextureView.getRotation() + 90);
                     mTextureView.requestLayout();
-                    mCoverImageView.setRotation(mCoverImageView.getRotation() + 90);
-                    mCoverImageView.requestLayout();
                 }
             }
         });
@@ -133,7 +129,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
         mChangeTransform.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mHadPlay) {
+                if (!mHadPlay) {
                     return;
                 }
                 if (mTransformSize == 0) {
@@ -158,40 +154,35 @@ public class SampleVideo extends StandardGSYVideoPlayer {
         resolveTransform();
     }
 
+
     /**
      * 处理镜像旋转
+     * 注意，暂停时
      */
     protected void resolveTransform() {
-
         switch (mTransformSize) {
             case 1: {
                 Matrix transform = new Matrix();
                 transform.setScale(-1, 1, mTextureView.getWidth() / 2, 0);
                 mTextureView.setTransform(transform);
-                mCoverImageView.setScaleType(ImageView.ScaleType.MATRIX);
-                mCoverImageView.setImageMatrix(transform);
-                mTransformCover = transform;
                 mChangeTransform.setText("左右镜像");
+                mTextureView.invalidate();
             }
             break;
             case 2: {
                 Matrix transform = new Matrix();
                 transform.setScale(1, -1, 0, mTextureView.getHeight() / 2);
                 mTextureView.setTransform(transform);
-                mCoverImageView.setScaleType(ImageView.ScaleType.MATRIX);
-                mCoverImageView.setImageMatrix(transform);
-                mTransformCover = transform;
                 mChangeTransform.setText("上下镜像");
+                mTextureView.invalidate();
             }
             break;
             case 0: {
                 Matrix transform = new Matrix();
                 transform.setScale(1, 1, mTextureView.getWidth() / 2, 0);
                 mTextureView.setTransform(transform);
-                mCoverImageView.setScaleType(ImageView.ScaleType.MATRIX);
-                mCoverImageView.setImageMatrix(transform);
-                mTransformCover = null;
                 mChangeTransform.setText("旋转镜像");
+                mTextureView.invalidate();
             }
             break;
         }
@@ -203,12 +194,12 @@ public class SampleVideo extends StandardGSYVideoPlayer {
      *
      * @param url           播放url
      * @param cacheWithPlay 是否边播边缓存
-     * @param objects       object[0]目前为title
+     * @param title         title
      * @return
      */
-    public boolean setUp(List<SwitchVideoModel> url, boolean cacheWithPlay, Object... objects) {
+    public boolean setUp(List<SwitchVideoModel> url, boolean cacheWithPlay, String title) {
         mUrlList = url;
-        return setUp(url.get(mSourcePosition).getUrl(), cacheWithPlay, objects);
+        return setUp(url.get(mSourcePosition).getUrl(), cacheWithPlay, title);
     }
 
     /**
@@ -217,12 +208,12 @@ public class SampleVideo extends StandardGSYVideoPlayer {
      * @param url           播放url
      * @param cacheWithPlay 是否边播边缓存
      * @param cachePath     缓存路径，如果是M3U8或者HLS，请设置为false
-     * @param objects       object[0]目前为title
+     * @param title         title
      * @return
      */
-    public boolean setUp(List<SwitchVideoModel> url, boolean cacheWithPlay, File cachePath, Object... objects) {
+    public boolean setUp(List<SwitchVideoModel> url, boolean cacheWithPlay, File cachePath, String title) {
         mUrlList = url;
-        return setUp(url.get(mSourcePosition).getUrl(), cacheWithPlay, cachePath, objects);
+        return setUp(url.get(mSourcePosition).getUrl(), cacheWithPlay, cachePath, title);
     }
 
     @Override
@@ -233,6 +224,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
 
     /**
      * 全屏时将对应处理参数逻辑赋给全屏播放器
+     *
      * @param context
      * @param actionBar
      * @param statusBar
@@ -256,8 +248,8 @@ public class SampleVideo extends StandardGSYVideoPlayer {
     }
 
     /**
-     *
      * 推出全屏时将对应处理参数逻辑返回给非播放器
+     *
      * @param oldF
      * @param vp
      * @param gsyVideoPlayer
@@ -270,7 +262,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
             mSourcePosition = sampleVideo.mSourcePosition;
             mType = sampleVideo.mType;
             mTransformSize = sampleVideo.mTransformSize;
-            setUp(mUrlList, mCache, mCachePath, mObjects);
+            setUp(mUrlList, mCache, mCachePath, mTitle);
             resolveTypeUI();
         }
     }
@@ -289,13 +281,11 @@ public class SampleVideo extends StandardGSYVideoPlayer {
      * 旋转逻辑
      */
     private void resolveRotateUI() {
-        if(!mHadPlay) {
+        if (!mHadPlay) {
             return;
         }
         mTextureView.setRotation(mRotate);
         mTextureView.requestLayout();
-        mCoverImageView.setRotation(mRotate);
-        mCoverImageView.requestLayout();
     }
 
     /**
@@ -303,42 +293,35 @@ public class SampleVideo extends StandardGSYVideoPlayer {
      * 注意，GSYVideoType.setShowType是全局静态生效，除非重启APP。
      */
     private void resolveTypeUI() {
-        if(!mHadPlay) {
+        if (!mHadPlay) {
             return;
         }
         if (mType == 1) {
             mMoreScale.setText("16:9");
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_16_9);
-            if (mTextureView != null)
-                mTextureView.requestLayout();
         } else if (mType == 2) {
             mMoreScale.setText("4:3");
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_4_3);
-            if (mTextureView != null)
-                mTextureView.requestLayout();
         } else if (mType == 3) {
             mMoreScale.setText("全屏");
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_FULL);
-            if (mTextureView != null)
-                mTextureView.requestLayout();
         } else if (mType == 4) {
             mMoreScale.setText("拉伸全屏");
             GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL);
-            if (mTextureView != null)
-                mTextureView.requestLayout();
         } else if (mType == 0) {
             mMoreScale.setText("默认比例");
             GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT);
-            if (mTextureView != null)
-                mTextureView.requestLayout();
         }
+        changeTextureViewShowType();
+        if (mTextureView != null)
+            mTextureView.requestLayout();
     }
 
     /**
      * 弹出切换清晰度
      */
     private void showSwitchDialog() {
-        if(!mHadPlay) {
+        if (!mHadPlay) {
             return;
         }
         SwitchVideoTypeDialog switchVideoTypeDialog = new SwitchVideoTypeDialog(getContext());
@@ -359,7 +342,7 @@ public class SampleVideo extends StandardGSYVideoPlayer {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                setUp(url, mCache, mCachePath, mObjects);
+                                setUp(url, mCache, mCachePath, mTitle);
                                 setSeekOnStart(currentPosition);
                                 startPlayLogic();
                                 cancelProgressTimer();
