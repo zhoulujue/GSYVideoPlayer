@@ -49,9 +49,13 @@ public class RecyclerItemViewHolder extends RecyclerItemBaseHolder {
                 getRecyclerBaseAdapter().notifyDataSetChanged();
                 //listVideoUtil.setLoop(true);
                 listVideoUtil.setPlayPositionAndTag(position, TAG);
+                listVideoUtil.setTitle("title " + position);
                 final String url = "http://baobab.wdjcdn.com/14564977406580.mp4";
                 //listVideoUtil.setCachePath(new File(FileUtils.getPath()));
                 listVideoUtil.startPlay(url);
+
+                //必须在startPlay之后设置才能生效
+                //listVideoUtil.getGsyVideoPlayer().getTitleTextView().setVisibility(View.VISIBLE);
             }
         });
     }
